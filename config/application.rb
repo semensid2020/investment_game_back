@@ -1,4 +1,5 @@
 require_relative "boot"
+require_relative '../app/middleware/telegram_auth'
 
 require "rails/all"
 
@@ -18,5 +19,7 @@ module InvestmentGame
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    config.middleware.use TelegramAuth
   end
 end
