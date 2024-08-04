@@ -12,4 +12,12 @@
 #  telegram_id      :bigint
 #
 class User < ApplicationRecord
+  # Устанавливаем связь с моделью Market
+  has_one  :market, dependent: :destroy
+
+  private
+
+  def create_market
+    Market.create(user: self, current_date: 5.years.ago, price: 10)
+  end
 end
