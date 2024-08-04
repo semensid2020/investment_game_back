@@ -1,0 +1,15 @@
+<style>
+  body {
+    background-color: white;
+  }
+</style>
+
+<h1>Профиль пользователя</h1>
+
+<% if @user %>
+  <p>ID: <%= @user.telegram_id %></p>
+  <p>Имя: <%= @user.name || 'Не указано' %></p>
+  <p>Имя пользователя: <%= @user.username || 'Не указано' %></p>
+<% else %>
+  <p>Пользователь не найден</p>
+<% end %>
