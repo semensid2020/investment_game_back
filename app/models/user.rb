@@ -15,14 +15,9 @@ class User < ApplicationRecord
   # Устанавливаем связь с моделью Market
   has_one  :market, dependent: :destroy
 
-  private
+  # Пришлось добавить коллбэк
+  after_initialize :set_market
 
-  def create_market
-    Market.create(user: self, current_date: 5.years.ago, price: 10)
-  end
-
-
-  # Возможно эти 2 методы не могут быть приватными!!!
   def buy_tokens(amount_of_dollars, market)
     tokens_to_buy = amount_of_dollars / market.price
     if capital >= amount_of_dollars
@@ -39,6 +34,16 @@ class User < ApplicationRecord
     else
       false
     end
+  end
+
+  private
+
+  def set_market
+    self.market || create_market
+  end
+
+  def create_market
+    Market.create(user: self, current_date: 5.years.ago, price: 10)
   end
 
 end
