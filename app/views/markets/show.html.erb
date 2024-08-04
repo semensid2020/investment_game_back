@@ -1,0 +1,142 @@
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<div class="container">
+  <div class="chart-container">
+    <div id="chart-data"
+       data-prices="<%= @market.price_history.last(10).map { |entry| entry['price'] }.join(',') %>"
+       data-dates="<%= @market.price_history.last(10).map { |entry| entry['date'] }.join(',') %>">
+    </div>
+    <div id="line-chart"></div>
+  </div>
+
+  <div class="mt-4 mx-auto max-w-md">
+    <h2 class="text-xl font-bold">Username: <%= current_user.username %></h2>
+    <p class="text-lg">Today date: <%= @market.current_date.strftime('%Y-%m-%d') %></p>
+    <p class="text-lg">Price: <%= @market.price %></p>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <%= form_with url: buy_market_path(@market), method: :post, local: true do |form| %>
+          <%= form.label :amount_of_dollars_for_buying, "Amount of dollars:", class: 'block text-base font-medium mb-2' %>
+          <%= form.number_field :amount_of_dollars_for_buying, step: 'any', class: 'w-full bg-gray-800 text-white h-10 px-3 rounded mb-2' %>
+          <%= form.submit "Buy Tokens", class: 'btn btn-green' %>
+        <% end %>
+      </div>
+
+      <div>
+        <%= form_with url: sell_market_path(@market), method: :post, local: true do |form| %>
+          <%= form.label :amount_of_tokens_for_selling, "Amount of tokens:", class: 'block text-base font-medium mb-2' %>
+          <%= form.number_field :amount_of_tokens_for_selling, step: 'any', class: 'w-full bg-gray-800 text-white h-10 px-3 rounded mb-2' %>
+          <%= form.submit "Sell Tokens", class: 'btn btn-red' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div id="user-info" class="mt-4 mx-auto max-w-md">
+    <p class="text-base">You have: <%= number_with_precision(current_user.capital, precision: 2) %> dollars</p>
+    <p class="text-base">You have: <%= current_user.amount_of_tokens %> tokens</p>
+  </div>
+
+  <div class="mt-4 w-full max-w-md px-4">
+    <%= link_to 'Next Day', next_date_market_path(@market), class: 'btn btn-lime' %>
+  </div>
+
+
+  <% flash.each do |key, value| %>
+    <div class="flash <%= key %>"><%= value %></div>
+  <% end %>
+
+</div>
+<script>
+  function initializeChart() {
+    const chartDataElement = document.getElementById("chart-data");
+    const prices = chartDataElement.getAttribute("data-prices").split(',').map(Number);
+    const dates = chartDataElement.getAttribute("data-dates").split(',');
+
+    const options = {
+      series: [{
+        name: "Price",
+        data: prices,
+        color: "#00FF00",
+      }],
+      chart: {
+        height: 300,
+        type: "area",
+        fontFamily: "Inter, sans-serif",
+        dropShadow: {
+          enabled: false,
+        },
+        toolbar: {
+          show: false,
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        style: {
+          cssClass: 'text-xs text-white font-medium',
+          fontSize: '9px',
+          colors: ['#049804'],
+        },
+        formatter: function (value) {
+          return value.toFixed(2);
+        }
+      },
+      stroke: {
+        width: 2,
+      },
+      grid: {
+        show: true,
+        strokeDashArray: 4,
+        padding: {
+          left: 16,
+          right: 16,
+          top: 0,
+        },
+      },
+      tooltip: {
+        enabled: true,
+        x: {
+          show: false,
+        },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          opacityFrom: 0.55,
+          opacityTo: 0,
+          shade: "#00FF00",
+          gradientToColors: ["#00FF00"],
+        },
+      },
+      xaxis: {
+        categories: dates,
+        labels: {
+          show: true,
+          style: {
+            colors: '#FFFFFF',
+            fontFamily: "Inter, sans-serif",
+            cssClass: "text-xs font-normal",
+          },
+        },
+        axisBorder: {
+          show: false,
+        },
+        axisTicks: {
+          show: false,
+        },
+      },
+      yaxis: {
+        show: false,
+      },
+    };
+
+    const chartElement = document.querySelector("#line-chart");
+    if (chartElement) {
+      chartElement.innerHTML = '';
+      const chart = new ApexCharts(chartElement, options);
+      chart.render();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", initializeChart);
+</script>
